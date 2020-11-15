@@ -1,31 +1,44 @@
+/**
+ * @param {String} el
+ * @param {String} classNames
+ * @param {HTMLElement} child
+ * @param {HTMLElement} parent
+ * @param  {...array} dataAttr
+ */
 
+export default function create(el, classNames, child, parent, ...dataAttr) {
+  let element = null;
+  try {
+    element = document.createElement(el);
+  } catch (error) {
+    throw new Error('Unable to create HTMLElement! Give a proper tag name');
+  }
 
+  if (classNames) element.classList.add(...classNames.split(' ')); // "class1 class2 class3"
 
+  if (child && Array.isArray(child)) {
+    child.forEach((childElement) => childElement && element.appendChild(childElement));
+  } else if (child && typeof child === 'object') {
+    element.appendChild(child);
+  } else if (child && typeof child === 'string') {
+    element.innerHTML = child;
+  }
 
+  if (parent) {
+    parent.appendChild(element);
+  }
 
-
-function create(el, className, child, parent, ...dataAttrs) {
-
-    let element = null;
-    try {
-        element = document.createElement(el);
-    } catch {
-        throw new Error('Invalid HTMl tag name');
-    }
-
-    if (className) {
-        element.classList.add(className);
-    }
-
-    if (child) {
-        element.appendChild(child);
-    }
-
-    if (parent) {
-        parent.appendChild(element);
-        return parent;
-    }
-
-
-    return element;
+  if (dataAttr.length) {
+    dataAttr.forEach(([attrName, attrValue]) => {
+      if (attrValue === '') {
+        element.setAttribute(attrName, '');
+      }
+      if (attrName.match(/value|id|placeholder|cols|rows|autocorrect|spellcheck/)) {
+        element.setAttribute(attrName, attrValue);
+      } else {
+        element.dataset[attrName] = attrValue;
+      }
+    });
+  }
+  return element;
 }
