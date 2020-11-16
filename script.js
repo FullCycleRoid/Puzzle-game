@@ -6,49 +6,46 @@ document.body.appendChild(container)
 
 
 
-// window.addEventListener('DOMContentLoaded', function() {
-//     let game = new Game()
-// })
+class Timer {
+    constructor(parent) {
+        this.initTime = 0;
+        this.isPaused = true;
+        this.time = '';
+        this.parent = parent
+        this.parent.textContent = "00:00"
 
-
-
-class GameBoard {
-    // создать поле игры
-    constructor() {
-        this.isOverlay = false;
-        this.gameBoard = create('div', 'game-board')
-        this.menu = new Menu();
-        this.game = new Game();
+        this.startTime()
     }
 
+    tick() {
+        let minutes = parseInt(this.initTime / 60, 10)
+        let seconds = parseInt(this.initTime % 60, 10)
 
-}
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ?  '0' + seconds : seconds;
 
-class Menu {
-    constructor() {
+        ++this.initTime;
 
+        this.parent.textContent = `${minutes}:${seconds}`;
     }
 
-    newGame() {
+    startTime() {
 
+            setInterval(()=> {this.tick()} ,1000)
     }
 
-    settings() {
+    paused () {
+        if (this.isPaused) {
+            setInterval( this.startTime ,200000);
+            // this.isPaused = false
+        } else {
+            setInterval( this.startTime ,5);
+            // this.isPaused = true;
 
-    }
-
-    savedGames() {
-
-    }
-
-    bestScores() {
-
-    }
-
-    rules() {
-
+        }
     }
 }
+
 
 class Game {
     constructor(size) {
@@ -56,9 +53,13 @@ class Game {
         this.tiles = [];
         this.isOverlay = true;
         this.isPaused = false;
+
         this.gameBoard = create('div', 'game-board')
+
         this.moves = 0;
-        // this.timer = new Timer().init()
+        this.menu = [];
+        this.header = [];
+        this.timer;
     }
 
     randomTiles(tiles) {
@@ -88,8 +89,9 @@ class Game {
         return tiles;
     }
 
-    overlay() {
-        return create('div', 'overlay visible',[
+    generateMenu() {
+
+        let menu = create('div', 'overlay visible',[
             create('div', 'screen__container active', [
                 create('button', 'nav__btn', 'New Game',),
                 create('button', 'nav__btn', 'Saved Games',),
@@ -102,30 +104,138 @@ class Game {
             create('div', 'screen__container hidden', null, null,['name', 'saved']),
             create('div', 'screen__container hidden', null, null,['name', 'rules']),
         ])
+
+
+        for (let i=0; i<menu.children.length; i++) {
+            this.menu.push(menu.children[i])
+        }
+        return menu;
+    }
+
+    generateHeader() {
+        let header = create('div', 'header');
+
+        let headerElements = [create('div', 'timer',[ create('span', null, 'Timer: '),
+                                                                        create('span')
+                                                                       ]),
+                              create('div', 'moves', [ create('span', null, 'Moves: '),
+                                                                         create('span')
+                                                                       ]),
+                              create('button', 'pause visible', 'Pause game'),
+                              create('button', 'pause', 'Resume game')
+        ];
+
+        headerElements.forEach((elem)=> {
+            header.appendChild(elem)
+        })
+
+        return {header, headerElements} ;
     }
 
     generateGameBoard() {
+
         let temporaryTilesArray = this.createTiles();
         this.randomTiles(temporaryTilesArray).forEach((tile) => {
             this.tiles.push(tile)
             this.gameBoard.appendChild(tile)
         });
 
-        console.log('inside generate tiles', this.tiles.length)
+        this.tiles.forEach((el, index)=> {
+            el.addEventListener('click', (e)=> { this.tileHandler(e, index)})
+        })
 
-        document.addEventListener('click', this.tileHandler)
+        let {header, headerElements} = this.generateHeader()
 
-        if (this.isOverlay) {
-            this.gameBoard.appendChild(this.overlay())
-        }
+        this.timer = new Timer(headerElements[0].children[1]);
+
+        this.gameBoard.appendChild(this.generateMenu())
+
+        this.menu[0].children[0].addEventListener('click', (e)=> this.startGame(e, this.timer))
+        headerElements[2].addEventListener('click', (e)=> this.startGame(e, this.timer))
+
+
+        headerElements[1].children[1].textContent = '0';
+
+        container.appendChild(header)
         container.appendChild(this.gameBoard)
-
     }
 
-    tileHandler(e) {
-        console.log('click', this.tiles, this.size)
+    startGame(e, timer) {
+
+        let startBtn = document.getElementsByClassName('overlay')[0]
+        if (this.isPaused) {
+                timer.paused()
+                timer.isPaused = false;
+                startBtn.classList.add('visible')
+                this.isPaused = false;
+            } else {
+                timer.paused()
+                timer.isPaused = false;
+                startBtn.classList.remove('visible')
+                this.isPaused = true;
+                console.log(timer)
+
+            }
+    }
+
+    tileHandler(e, index) {
+        let swapedElem = this.gameBoard.children[index]
+
+        let deletedElem = this.gameBoard.removeChild(this.gameBoard.children[index])
+
+        console.log('this shit',deletedElem)
+
+        if (deletedElem.id !== empty) {
+            this.gameBoard.insertBefore(deletedElem, swapedElem.parentNode )
+            this.gameBoard.insertBefore(deletedElem, swapedElem.parentNode )
+            this.gameBoard.insertBefore(deletedElem, swapedElem.parentNode )
+        }
+        console.log('this tile', this.gameBoard.children[index-1].nextSibling.id)
+
+        if (this.gameBoard.children[index].nextSibling.id === 'empty' ||
+            this.gameBoard.children[index].previousSibling.id === 'empty') {
+            console.log('empty inside sibling')
+
+
+        }
+
+
+        if (this.gameBoard.children[index].nextSibling.id % index === 0) {
+            console.log('empty row')
+        }
+
+
     }
 
 }
 
-new Game(9).generateGameBoard()
+new Game(4).generateGameBoard()
+
+
+
+
+class Menu {
+    constructor() {
+
+    }
+
+    newGame() {
+
+    }
+
+    settings() {
+
+    }
+
+    savedGames() {
+
+    }
+
+    bestScores() {
+
+    }
+
+    rules() {
+
+    }
+}

@@ -1,5 +1,7 @@
 body {
   font-family: Gadugi, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
@@ -132,21 +134,58 @@ button.nav__btn:hover {
 }
 
 .header {
+  font-size: 20px;
   min-height: 75px;
-  max-width: 430px;
-  margin: auto;
+  max-width: 510px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   padding-bottom: 10px;
 }
 
+button.pause.visible {
+  display: block;
+}
+
 button.pause {
+  display: none;
   background: none;
   border: none;
   font-size: 100%;
   cursor: pointer;
   outline: none;
+}
+
+button.pause:hover {
+  text-decoration: underline;
+  color: #551A8B;
+}
+
+@media screen and (max-width: 1200px) {
+  .container {
+    width: 1000px;
+  }
+}
+@media screen and (max-width: 1000px) {
+  .container {
+    width: 800px;
+  }
+}
+@media screen and (max-width: 850px) {
+  .game-board {
+    width: 300px;
+    height: 300px;
+    line-height: 550%;
+  }
+
+  .tile {
+    width: 90px;
+    height: 90px;
+  }
+
+  .container {
+    width: 320px;
+  }
 }
 
 /*# sourceMappingURL=style.css.map */
