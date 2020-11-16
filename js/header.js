@@ -15,3 +15,5 @@ const pauseBtn = create('button', 'pause', 'ResumeGame')
 header.appendChild(timer)
 header.appendChild(moves)
 header.appendChild(pauseBtn)
+
+

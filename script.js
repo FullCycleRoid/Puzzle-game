@@ -12,6 +12,8 @@ document.body.appendChild(container)
 
 
 
+
+
 class GameBoard {
     // создать поле игры
     constructor() {
